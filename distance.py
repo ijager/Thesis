@@ -32,9 +32,14 @@ def compute_sources_and_receivers(distance_data, dim):
     Y = np.array(S_prime[2,:])
     Z = np.array(S_prime[3,:])
 
-    qq = np.vstack( (np.ones((1,N)), 2*XYZ, XYZ**2, 2*X*Y, 2*X*Z, 2*Y*Z) ).T
+    qq = np.vstack( (np.ones((1,N)), 2*XYZ, XYZ**2, 2*X*Y, 
+        2*X*Z, 2*Y*Z) ).T
     q = np.linalg.pinv(qq).dot(A.T)
-    Q = np.vstack( (np.hstack( (np.squeeze(q[:4].T), -0.5) ), np.hstack([q[1], q[4], q[7], q[8], 0]), np.hstack([q[2], q[7], q[5], q[9], 0]), np.hstack([q[3],q[8],q[9],q[6],0]), np.array([-0.5,0,0,0,0]) ) )
+    Q = np.vstack( (np.hstack( (np.squeeze(q[:4].T), -0.5) ), 
+        np.hstack([q[1], q[4], q[7], q[8], 0]), 
+        np.hstack([q[2], q[7], q[5], q[9], 0]), 
+        np.hstack([q[3],q[8],q[9],q[6],0]), 
+        np.array([-0.5,0,0,0,0]) ) )
 
     if np.all(np.linalg.eigvals(Q[1:4,1:4]) > 0):
         C = np.linalg.cholesky(Q[1:4,1:4]).T
@@ -97,14 +102,16 @@ class DistanceData:
     def find_images(self, r):
         results = {}
         for (E0, E1) in pair_iterator(self.E):
-            data_hat = np.hstack( (np.array(self.S).T,(E0[1:,:]).T ,(E1[1:,:]).T) )
+            data_hat = np.hstack( (np.array(self.S).T,(E0[1:,:]).T,
+                (E1[1:,:]).T) )
             error_r, s_est = self._compute_coordinates(data_hat, r)
             results[error_r] = (s_est, (E0, E1))
         return results
 
     def _compute_coordinates(self, data, r):
         """
-        Test whether the input data can be used for localization of sources.
+        Test whether the input data can be used for localization of 
+        sources.
 
         data    distance data between N sources and M known receivers
         r       coordinates of M receivers
@@ -118,8 +125,8 @@ class DistanceData:
         Re, Se = compute_sources_and_receivers(data, 5)
         # find transformation between R and Re
         R_r,t_r = rigid_transform_3D(np.mat(Re.T), np.mat(r))
-        # find transformation between R and Re
-        #Apply transformation on Re and Se to obtain estimated locations of sources
+        # find transformation between R and Re. Apply transformation 
+        # on Re and Se to obtain estimated locations of sources
         r_est = np.array(R_r*np.mat(Re) + np.tile(t_r, (1,M)))
         s_est = np.array((-1*R_r)*np.mat(Se) + np.tile(t_r, (1,N)))
 

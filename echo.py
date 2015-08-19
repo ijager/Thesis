@@ -1,5 +1,5 @@
 import numpy as np
-import multiprocessing
+import multiprocessing as mp
 import itertools
 import networkx as nx
 import sys
@@ -11,10 +11,10 @@ def find_sorting_indices(x, Y):
     return sort_i
 
 def calc_rank(D, echo_set, t):
-        D[-1,0:-1] = np.array(echo_set).reshape(1,len(echo_set))**2
-        D[0:-1,-1] = np.array(echo_set).reshape(len(echo_set),1)**2
-        rank = np.linalg.matrix_rank(D, t)
-        return (rank, echo_set)
+    D[-1,0:-1] = np.array(echo_set).reshape(1,len(echo_set))**2
+    D[0:-1,-1] = np.array(echo_set).reshape(len(echo_set),1)**2
+    rank = np.linalg.matrix_rank(D, t)
+    return (rank, echo_set)
 
 class EchoData:
     
@@ -67,8 +67,10 @@ class EchoData:
     
     def _get_candidates(self, D, t=0.0002, parallel=False):
         """
-        Filters out all non-feasible combinations of echoes based on the rank test of the augmented Euclidean Distance Matrix D.
-        If matrix D after augmenting with echo-data still passes the rank test, then the current set of echoes is saved.
+        Filters out all non-feasible combinations of echoes based on 
+        the rank test of the augmented Euclidean Distance Matrix D. If 
+        matrix D after augmenting with echo-data still passes the rank 
+        test, then the current set of echoes is saved.
 
         D       Euclidean distance matrix of size (6,6)
         t       rank test threshold
@@ -77,10 +79,12 @@ class EchoData:
         """
         
         if parallel==True:
-            echo_sets = [echo_set for echo_set in itertools.product(*self.data[:,1:])]
+            echo_sets = [echo_set for echo_set 
+                    in itertools.product(*self.data[:,1:])]
 
-            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-                output = pool.starmap(calc_rank, zip(itertools.repeat(D), echo_sets, itertools.repeat(t)))
+            with mp.Pool(processes=mp.cpu_count()) as pool:
+                output = pool.starmap(calc_rank, zip(itertools.repeat(D), 
+                    echo_sets, itertools.repeat(t)))
 
             ranks, echo_sets = zip(*output)
             candidates = [echo_set for rank, echo_set in output if rank < 6]            

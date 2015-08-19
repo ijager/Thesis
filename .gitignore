@@ -1,0 +1,15 @@
+Papers/
+*.swp
+*.aux
+*.idx
+*.log
+*.out
+*.pdf
+*.toc
+*.gz
+*.pyc
+*.bbl
+*.blg
+.DS_Store
+.ipynb_checkpoints
+.python-version

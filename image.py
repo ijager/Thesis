@@ -61,14 +61,16 @@ class ImageSourceData:
         self.vertices = None
         
     def find_walls(self, threshold, bestN):
-        wall_points = self._calculate_wall_points(self.N, threshold=threshold, bestN=bestN)
+        wall_points = self._calculate_wall_points(self.N, threshold=threshold, 
+                bestN=bestN)
         todel = []
         for i,wset in enumerate(wall_points):
             if np.any(np.array(wset)[:,2] > (self.L[2]-0.5)):
                 todel.append(int(i))
             elif np.any(np.array(wset)[:,2] < 0.5):
                 todel.append(int(i))
-        self.wallpoints = np.delete(np.array(wall_points), np.array(todel, dtype='int'), axis=0)
+        self.wallpoints = np.delete(np.array(wall_points), np.array(todel, 
+            dtype='int'), axis=0)
 
         self.vertices = self._calculate_vertices2D(self.wallpoints)
         return self.wallpoints, self.vertices
@@ -96,7 +98,8 @@ class ImageSourceData:
                 est_images = (data[:,(N+j*6):(N+(j+1)*6)]).T
                 mid_points = (est_images + source) / 2.0
                 normal = source - est_images
-                unit_normal = normal / np.linalg.norm(normal, axis=1).reshape(len(normal),1)
+                unit_normal = normal / np.linalg.norm(normal, 
+                        axis=1).reshape(len(normal),1)
                 self.images.append(est_images)
                 self.normals.append(unit_normal)
                 self.midpoints.append(mid_points)
@@ -121,8 +124,10 @@ class ImageSourceData:
             if len(data) > 2:
                 x = data[:,0]
                 y = data[:,1]
-                fit_A, residuals_A, rank, singular_values, rcond = np.polyfit(x, y, 1, full=True)
-                fit_B, residuals_B, rank, singular_values, rcond = np.polyfit(y, x, 1, full=True)
+                fit_A, residuals_A, rank, singular_values, rcond = np.polyfit(
+                        x, y, 1, full=True)
+                fit_B, residuals_B, rank, singular_values, rcond = np.polyfit(
+                        y, x, 1, full=True)
                 f_A.append(fit_A)
                 f_B.append(fit_B)
                 res_A.append(residuals_A)
@@ -151,7 +156,8 @@ class ImageSourceData:
                 lines.append(Line(1, -n, d))
         
         if len(lines) > 1:
-            intersects = np.array([i for i in intersections(lines) if np.all(np.abs(np.array(i)) < 100)])
+            intersects = np.array([i for i in intersections(lines) if 
+                np.all(np.abs(np.array(i)) < 100)])
         else: intersects = None
 
         return intersects
