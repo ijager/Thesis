@@ -35,8 +35,10 @@ class EchoData:
             if verbose == True:
                 print('prefilter threshold:', t)
             t *= 2
-            if len(Ci) > 100 or t > 8*threshold:
+            if len(Ci) > 200 or t > 8*threshold:
                 break
+            if verbose == True:
+                print('Ci:', len(Ci))
             Ei = self._get_unique_sets(Ci, n=n)
         if 0 < len(Ei) < 20:
             u = np.unique(Ci[:,0])
@@ -62,6 +64,11 @@ class EchoData:
         G.add_edges_from(edge_list)
         H = nx.complement(G)
         cliques = nx.find_cliques(H)
+#        cliques = list(cliques)
+#        if len(cliques) > 0:
+#            max_c = max([len(l) for l in cliques])
+#            print('clique:', max_c)
+#        return [C[l] for l in cliques if len(l) == n-1]
         return [C[l] for l in cliques if len(l) == n]
 
     

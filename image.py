@@ -89,28 +89,31 @@ class ImageSourceData:
         self.normals = []
         self.images = []
         keys = [k for k in sorted(X) if k < threshold][:bestN]
-        for k in keys:
-            data, distance_data = X[k]
-            for j,e in enumerate(distance_data):
-                source = measurement.locate_source(self.r, e[0,:])
-                #i = e.measurement.index
-                #source = data[:,i]
-                est_images = (data[:,(N+j*6):(N+(j+1)*6)]).T
-                mid_points = (est_images + source) / 2.0
-                normal = source - est_images
-                unit_normal = normal / np.linalg.norm(normal, 
-                        axis=1).reshape(len(normal),1)
-                self.images.append(est_images)
-                self.normals.append(unit_normal)
-                self.midpoints.append(mid_points)
-                self.sources.append(source)
 
-        sets = [[p] for p in self.midpoints[0]]
-        for i,normal in enumerate(self.normals[0]):
-            for k,normal_set in enumerate(self.normals[1:]):
-                for j,other_normal in enumerate(normal_set):
-                    if 0.9 < normal.dot(other_normal) < 1.1:
-                        sets[i].append(self.midpoints[k+1][j])
+        sets = []
+        if len(keys) > 0:
+            for k in keys:
+                data, distance_data = X[k]
+                for j,e in enumerate(distance_data):
+                    source = measurement.locate_source(self.r, e[0,:])
+                    #i = e.measurement.index
+                    #source = data[:,i]
+                    est_images = (data[:,(N+j*6):(N+(j+1)*6)]).T
+                    mid_points = (est_images + source) / 2.0
+                    normal = source - est_images
+                    unit_normal = normal / np.linalg.norm(normal, 
+                            axis=1).reshape(len(normal),1)
+                    self.images.append(est_images)
+                    self.normals.append(unit_normal)
+                    self.midpoints.append(mid_points)
+                    self.sources.append(source)
+
+            sets = [[p] for p in self.midpoints[0]]
+            for i,normal in enumerate(self.normals[0]):
+                for k,normal_set in enumerate(self.normals[1:]):
+                    for j,other_normal in enumerate(normal_set):
+                        if 0.9 < normal.dot(other_normal) < 1.1:
+                            sets[i].append(self.midpoints[k+1][j])
         return sets
 
     def _calculate_vertices2D(self, wall_points):
@@ -157,7 +160,7 @@ class ImageSourceData:
         
         if len(lines) > 1:
             intersects = np.array([i for i in intersections(lines) if 
-                np.all(np.abs(np.array(i)) < 100)])
-        else: intersects = None
+                np.all(np.abs(np.array(i)) < 30)])
+        else: intersects = []
 
         return intersects
